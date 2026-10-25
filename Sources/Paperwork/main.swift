@@ -4,6 +4,7 @@ import PaperworkCore
 import UniformTypeIdentifiers
 
 final class TopStackView: NSStackView { override var isFlipped: Bool { true } }
+final class OverviewCanvasView: NSView { override var isFlipped: Bool { true } }
 
 // Modal NSAlert field editors may have no window undo manager. This editor owns only
 // the temporary input's typing history, never the PDF's document history.
@@ -31,7 +32,7 @@ final class PaperworkApp: NSObject, NSApplicationDelegate, NSWindowDelegate, PDF
     let search = NSSearchField()
     let inspector = TopStackView()
     let inspectorScroll = NSScrollView()
-    let overview = NSStackView()
+    let overviewCanvas = OverviewCanvasView(frame: NSRect(x: 0, y: 0, width: 1, height: 1))
     let overviewScroll = NSScrollView()
     let overviewRangeLabel = NSTextField(labelWithString: "")
     let overviewControls = NSStackView()
@@ -162,8 +163,7 @@ final class PaperworkApp: NSObject, NSApplicationDelegate, NSWindowDelegate, PDF
         resultStack.orientation = .vertical; resultStack.alignment = .leading; resultStack.spacing = 8; resultStack.edgeInsets = NSEdgeInsets(top: 14, left: 14, bottom: 14, right: 14); resultStack.translatesAutoresizingMaskIntoConstraints = false
         resultScroll.documentView = resultStack; resultScroll.hasVerticalScroller = true; resultScroll.drawsBackground = false; resultScroll.widthAnchor.constraint(equalToConstant: 250).isActive = true; resultStack.widthAnchor.constraint(equalTo: resultScroll.contentView.widthAnchor).isActive = true; resultScroll.isHidden = true
         let viewer = NSView(); reader.translatesAutoresizingMaskIntoConstraints = false; viewer.addSubview(reader)
-        overview.orientation = .horizontal; overview.alignment = .top; overview.spacing = 12; overview.edgeInsets = NSEdgeInsets(top: 18, left: 18, bottom: 18, right: 18)
-        overviewScroll.documentView = overview; overviewScroll.hasHorizontalScroller = true; overviewScroll.hasVerticalScroller = false; overviewScroll.drawsBackground = false; overviewScroll.translatesAutoresizingMaskIntoConstraints = false; overviewScroll.isHidden = true; overviewScroll.setAccessibilityLabel("Navigation-only page overview"); viewer.addSubview(overviewScroll)
+        overviewScroll.documentView = overviewCanvas; overviewScroll.hasHorizontalScroller = true; overviewScroll.hasVerticalScroller = false; overviewScroll.drawsBackground = false; overviewScroll.translatesAutoresizingMaskIntoConstraints = false; overviewScroll.isHidden = true; overviewScroll.setAccessibilityLabel("Navigation-only page overview"); viewer.addSubview(overviewScroll)
         empty.orientation = .vertical; empty.alignment = .centerX; empty.spacing = 12
         empty.addArrangedSubview(label("Open a PDF", size: 22, weight: .semibold))
         empty.addArrangedSubview(label("Read and organise a local working copy. The opened original stays unchanged.", size: 13, secondary: true))
@@ -206,7 +206,7 @@ final class PaperworkApp: NSObject, NSApplicationDelegate, NSWindowDelegate, PDF
         updateButtonStates(in: contentView)
     }
     func rebuildOverview() {
-        for view in overview.arrangedSubviews { overview.removeArrangedSubview(view); view.removeFromSuperview() }
+        for view in overviewCanvas.subviews { view.removeFromSuperview() }
         guard let pdf = reader.document else { return }
         let start = min(max(0, overviewStartPage), max(0, pdf.pageCount - 1))
         let end = min(start + 24, pdf.pageCount)
@@ -214,15 +214,43 @@ final class PaperworkApp: NSObject, NSApplicationDelegate, NSWindowDelegate, PDF
         overviewRangeLabel.stringValue = pdf.pageCount == 0 ? "No pages" : "Pages \(start + 1)–\(end) of \(pdf.pageCount) · Navigation only"
         controls["overviewPrevious"]?.isEnabled = start > 0
         controls["overviewNext"]?.isEnabled = end < pdf.pageCount
-        guard start < end else { return }
+        let cardWidth: CGFloat = 154
+        let cardSpacing: CGFloat = 12
+        let inset: CGFloat = 18
+        let previewWidth: CGFloat = 138
+        let previewHeight: CGFloat = 178
+        let pageCount = max(0, end - start)
+        let canvasWidth = inset * 2 + CGFloat(pageCount) * cardWidth + CGFloat(max(0, pageCount - 1)) * cardSpacing
+        guard start < end else {
+            overviewCanvas.frame = NSRect(x: 0, y: 0, width: canvasWidth, height: inset * 2 + previewHeight + 30)
+            overviewScroll.contentView.scroll(to: .zero)
+            overviewScroll.reflectScrolledClipView(overviewScroll.contentView)
+            return
+        }
+        var items: [(pageIndex: Int, image: NSImage, button: NSButton)] = []
+        var buttonHeight: CGFloat = 24
         for index in start..<end {
             guard let page = pdf.page(at: index) else { continue }
-            let card = NSStackView(); card.orientation = .vertical; card.alignment = .centerX; card.spacing = 6
-            let image = page.thumbnail(of: NSSize(width: 138, height: 178), for: .mediaBox)
-            let preview = NSImageView(image: image); preview.imageScaling = .scaleProportionallyUpOrDown; preview.widthAnchor.constraint(equalToConstant: 138).isActive = true; preview.heightAnchor.constraint(equalToConstant: 178).isActive = true; preview.setAccessibilityLabel("Page \(index + 1) preview")
-            let select = NSButton(title: "Page \(index + 1)", target: self, action: #selector(overviewPageClicked(_:))); select.tag = index; select.setAccessibilityLabel("Open page \(index + 1)")
-            card.addArrangedSubview(preview); card.addArrangedSubview(select); card.widthAnchor.constraint(equalToConstant: 154).isActive = true; overview.addArrangedSubview(card)
+            let image = page.thumbnail(of: NSSize(width: previewWidth, height: previewHeight), for: .mediaBox)
+            let select = NSButton(title: "Page \(index + 1)", target: self, action: #selector(overviewPageClicked(_:))); select.tag = index; select.setAccessibilityLabel("Open page \(index + 1)"); select.sizeToFit()
+            buttonHeight = max(buttonHeight, select.frame.height)
+            items.append((index, image, select))
         }
+        let canvasHeight = inset * 2 + previewHeight + 6 + buttonHeight
+        overviewCanvas.frame = NSRect(x: 0, y: 0, width: canvasWidth, height: canvasHeight)
+        for item in items {
+            let cardIndex = item.pageIndex - start
+            let cardX = inset + CGFloat(cardIndex) * (cardWidth + cardSpacing)
+            let preview = NSImageView(image: item.image); preview.imageScaling = .scaleProportionallyUpOrDown; preview.frame = NSRect(x: cardX + (cardWidth - previewWidth) / 2, y: inset, width: previewWidth, height: previewHeight); preview.setAccessibilityLabel("Page \(item.pageIndex + 1) preview")
+            let select = item.button
+            let selectWidth = min(cardWidth, max(1, select.frame.width))
+            let selectHeight = max(24, select.frame.height)
+            select.frame = NSRect(x: cardX + (cardWidth - selectWidth) / 2, y: inset + previewHeight + 6, width: selectWidth, height: selectHeight)
+            overviewCanvas.addSubview(preview); overviewCanvas.addSubview(select)
+        }
+        overviewCanvas.layoutSubtreeIfNeeded()
+        overviewScroll.contentView.scroll(to: .zero)
+        overviewScroll.reflectScrolledClipView(overviewScroll.contentView)
     }
     @objc func overviewPageClicked(_ sender: NSButton) { if let page = reader.document?.page(at: sender.tag) { reader.go(to: page); setOverview(false) } }
     func turnOverviewPage(_ offset: Int) {
@@ -293,8 +321,7 @@ final class PaperworkApp: NSObject, NSApplicationDelegate, NSWindowDelegate, PDF
         else { window.makeFirstResponder(reader) }
     }
     func focusOverviewContent() {
-        if let card = overview.arrangedSubviews.first as? NSStackView,
-           let select = card.arrangedSubviews.last as? NSButton,
+        if let select = overviewCanvas.subviews.compactMap({ $0 as? NSButton }).first,
            !select.isHidden, select.isEnabled {
             window.makeFirstResponder(select)
             return
