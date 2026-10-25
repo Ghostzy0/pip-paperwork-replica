@@ -1,0 +1,5 @@
+# Reference and evidence workflow
+
+Use lawful free access only. First record product/build/version and representative synthetic inputs; then inspect complete workflows and error/empty/recovery states. Save private app-only screenshots and accessibility snapshots under `.local-evidence/<app-id>/<kind>/<dated-session>/`, with a JSON index identifying source, exact input SHA-256, actions, observed result, and gaps. Keep captures private and out of source, issue text, public CI artifacts, and releases.
+
+Distinguish observed, documented, inferred, gated, and unverified behavior. A sign-in gate proves only that the attempted action surfaced that gate; do not generalize it to all features. Record consent boundaries. Never accept newly surfaced legal/security/account prompts without the owner's direct action. After source changes, capture the actual packaged app and compare the same synthetic input. Report build identity, validation performed, and remaining gaps. A source edit or compile alone is not parity acceptance.
