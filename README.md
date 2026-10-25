@@ -13,7 +13,15 @@ Requirements: Apple silicon Mac, macOS 14 or later, and Xcode Command Line Tools
 ./scripts/test.sh
 ```
 
-Build output is `build/Paperwork Replica.app`. The 24 October 2026 source snapshot compiled, passed 36 tests, and produced a strict-signature local package. It has not yet had a native launch, VoiceOver, minimum-window, minimum-OS, or same-input fidelity acceptance; those remain open. This is experimental source, not a claim of release readiness.
+Build output is `build/Paperwork Replica.app`. The current runtime source passed 36 tests and a production build in hosted macOS 14 CI. A matching local package has been exercised on macOS 27.0.1: the three-page overview shows complete cards and labels, and a 26-page fixture supports scrolling, batch navigation and return to the correct reader page. [TESTING.md](TESTING.md) gives exact package identity and limits. Minimum-window, VoiceOver and macOS 14 GUI acceptance remain open. This is an experimental alpha with selected workflows verified, not complete PDF Expert fidelity.
+
+## Actual overview example
+
+Captured from the local package whose runtime sources match public revision [`dc8e52c`](https://github.com/Ghostzy0/pip-paperwork-replica/commit/dc8e52c4fa8c3f108e50ba98338dc60f5724c87c), using an authored synthetic three-page document. The binary was compiled from the equivalent development snapshot; it was not rebuilt from that public commit.
+
+![Paperwork Replica showing three complete page previews and labels](assets/screenshots/three-page-overview.jpg)
+
+The overview is navigation-only. A batch contains at most 24 pages and scrolls horizontally when needed; select a page button to return to reading.
 
 ## Guides
 

@@ -1,5 +1,6 @@
 .github/workflows/ci.yml
 .gitignore
+CHANGELOG.md
 Engine/.gitignore
 Engine/Notices/Adobe-Core14-Copyrights.txt
 Engine/Notices/Adobe-Core14-MustRead.html
@@ -37,6 +38,7 @@ Sources/PaperworkCore/Recovery.swift
 Sources/PaperworkCore/Resources/starter.pdf
 Sources/PaperworkCore/SampleDocument.swift
 Sources/PaperworkCore/Workspace.swift
+TESTING.md
 Tests/PaperworkCoreTests/Fixtures/README.md
 Tests/PaperworkCoreTests/Fixtures/controls.pdf
 Tests/PaperworkCoreTests/Fixtures/encrypted.pdf
@@ -50,6 +52,7 @@ Tests/PaperworkCoreTests/Fixtures/verify_outputs.py
 Tests/PaperworkCoreTests/WorkspaceTests.swift
 UPSTREAM.md
 assets/AppIcon.icns
+assets/screenshots/three-page-overview.jpg
 docs/AI-SETUP.md
 docs/CONTRIBUTING.md
 docs/FAQ.md
