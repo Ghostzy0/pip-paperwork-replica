@@ -12,8 +12,12 @@ An authored 26-page document exercised the first 1–24 batch, horizontal scroll
 
 The previous flipped-stack package remained a rejected layout fix: it clipped labels and showed only two of three main previews. Earlier reader/page-2/search evidence belongs to that earlier executable and does not silently qualify the new package.
 
+On the same c778 package, a bounded native I/O slice edited the synthetic Project contact to `FINAL25 Sample`, saved a separate copy, reopened it, and retained the edited value across three pages. Opening an owned 46-byte invalid PDF showed a read error; dismissing it left the edited current copy intact. Canceling the native file picker also left the current copy active. On a separate authored three-page fixture, Page 2 showed `BRAVO SECOND PAGE`; searching `BRAVO` returned one result on Page 2. The original input hash stayed unchanged. Ten retained JPEG captures were independently reviewed; no account/personal content or GPS metadata was observed. The picker contents were not retained.
+
+A single resize attempt did not visibly reduce the window; its screenshot remained 2560×1736 pixels. Native-point size and minimum-window behavior are not established. A 213-row, app-process-only sampler reported maxima of 44.1% estimated CPU and 232,048 KiB RSS during mixed I/O. These are sampled maxima, not true peak, idle, energy or latency measurements; the helper process was excluded.
+
 ## Open limits
 
-The current package's field edit/save/reopen, invalid-input/chooser cancellation, smaller-window, keyboard-only, VoiceOver and minimum-OS GUI checks remain unrun. A finite final native I/O slice is queued; this page will record only what it actually establishes.
+Field edit/save/reopen, invalid-input handling, picker cancellation, and the Page 2/BRAVO search regression now pass on the current package. Keyboard-only, VoiceOver, minimum-window and macOS 14 GUI checks remain unverified. The resize attempt did not establish a smaller window.
 
 Premium reference annotation/save/OCR workflows were unavailable through the authorised free reference path; no trial was activated. Bookmarks, Outline, Annotation Summary, multiple document tabs and page-grouped search differ from the reference. Core unit/CI evidence is not native GUI or full PDF compatibility acceptance. See [PARITY.md](PARITY.md) and the repository issues for the remaining scope.

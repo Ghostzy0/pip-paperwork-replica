@@ -22,7 +22,7 @@ It creates a flattened searchable copy using the fixed English (UK) on-device re
 
 ### Is the app fully tested on macOS 14 and accessible with VoiceOver?
 
-Not yet. The 24 October 2026 snapshot compiled, passed 36 tests, and produced a locally verified signed package. Native launch, VoiceOver, minimum-window and macOS 14 behavior, and detailed fidelity checks remain unverified.
+Not fully. The current runtime source passed 36 tests and production build in hosted macOS 14 CI. A matching package passed selected overview/navigation workflows on macOS 27.0.1. VoiceOver, minimum-window, macOS 14 GUI and detailed fidelity checks remain unverified; [TESTING](../TESTING.md) identifies the exact scope.
 
 ### Where are licenses and notices?
 
